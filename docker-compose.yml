@@ -1,0 +1,22 @@
+
+
+services:
+  organizer:
+    build: .
+    container_name: scanned_files_organizer
+    # host.docker.internal needs to be added on Linux hosts occasionally, 
+    # but Docker Desktop for Windows supports it out of the box.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - APP_OLLAMA_HOST=${APP_OLLAMA_HOST:-http://host.docker.internal:11434}
+      - OLLAMA_TEXT_MODEL=${OLLAMA_TEXT_MODEL:-ministral-3:14b}
+      - OLLAMA_VISION_MODEL=${OLLAMA_VISION_MODEL:-llama3.2-vision}
+      - SCAN_DIRECTORY=/app/scans
+      - FILE_READY_WAIT_SECONDS=${FILE_READY_WAIT_SECONDS:-5}
+    volumes:
+      # Mount the actual Windows directory containing the scans to /app/scans inside the container.
+      # You can update this source path if your OneDrive structure changes.
+      - ${HOST_SCAN_DIR:-C:\Users\marko\OneDrive\Documents\Scans}:/app/scans
+    restart: unless-stopped
