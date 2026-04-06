@@ -1,0 +1,11 @@
+NAME                                 ID              SIZE      MODIFIED    
+ministral-3:14b                      4760c35aeb9d    9.1 GB    2 weeks ago    
+openclaw-model:latest                615d69ff040e    13 GB     2 weeks ago    
+glm-4.7-flash:latest                 d1a8a26252f1    19 GB     2 weeks ago    
+gpt-oss:20b                          17052f91a42e    13 GB     2 weeks ago    
+nomic-embed-text:latest              0a109f422b47    274 MB    2 weeks ago    
+qwen7b-64k:latest                    9d3f6d49fb31    4.7 GB    2 weeks ago    
+qwen2.5-coder:7b                     dae161e27b0e    4.7 GB    2 weeks ago    
+openclaw-16gb:latest                 358790111e71    7.3 GB    2 weeks ago    
+qwen2.5-coder:14b-instruct-q3_K_M    e00d09afd55a    7.3 GB    2 weeks ago    
+qwen2.5-coder:14b                    9ec8897f747e    9.0 GB    3 weeks ago    
