@@ -52,7 +52,7 @@ class ScanHandler(FileSystemEventHandler):
         # Python heuristics: Enforce keeping original name if it looks human-generated
         orig_basename = os.path.splitext(os.path.basename(file_path))[0]
         lower_name = orig_basename.lower().strip()
-        is_generic = lower_name.startswith(("scan", "img", "image", "doc", "untitled"))
+        is_generic = lower_name.startswith(("scan", "img", "image", "doc", "untitled", "unrecognized_file", "unnamed_file"))
         
         # If it has spaces and doesn't start with a generic scanner term, it's a human name!
         if " " in orig_basename and not is_generic:

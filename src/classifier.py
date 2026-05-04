@@ -2,7 +2,7 @@ import json
 import base64
 import requests
 from typing import List, Dict, Tuple
-from src.config import OLLAMA_HOST, OLLAMA_TEXT_MODEL, OLLAMA_VISION_MODEL, MISC_FOLDER_NAME
+from src.config import OLLAMA_HOST, OLLAMA_TEXT_MODEL, OLLAMA_VISION_MODEL, MISC_FOLDER_NAME, OLLAMA_TIMEOUT_SECONDS
 
 class Classifier:
     def __init__(self):
@@ -74,7 +74,7 @@ class Classifier:
 
     def _post_to_ollama(self, payload: Dict) -> Tuple[str, str, bool]:
         try:
-            response = requests.post(self.api_url, json=payload, timeout=120)
+            response = requests.post(self.api_url, json=payload, timeout=OLLAMA_TIMEOUT_SECONDS)
             response.raise_for_status()
             data = response.json()
             response_text = data.get("response", "{}")

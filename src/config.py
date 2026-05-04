@@ -17,5 +17,8 @@ OLLAMA_VISION_MODEL = os.getenv("OLLAMA_VISION_MODEL", "llama3.2-vision")
 # Number of seconds to wait for file writing
 FILE_READY_WAIT_SECONDS = int(os.getenv("FILE_READY_WAIT_SECONDS", 5))
 
+# Number of seconds to wait for Ollama response
+OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", 300))
+
 # Fallback category if LLM cannot determine it
 MISC_FOLDER_NAME = "Miscellaneous"
