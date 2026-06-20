@@ -1,5 +1,8 @@
 # Auto Scan Organizer
 
+<div align="center">
+  <img src="assets/logo.png" alt="Auto Scan Organizer Logo" width="200" />
+</div>
 This repository contains a Python-based Docker application that continuously watches a `Scans` directory (e.g. hooked up to your Microsoft OneDrive) and leverages a local Ollama Large Language Model to organize and intelligently rename your files. 
 
 It handles both standard text documents (PDF/JPEG) and image-heavy files (e.g., family photos).
