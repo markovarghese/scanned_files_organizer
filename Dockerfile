@@ -3,6 +3,7 @@ FROM python:3.11-slim
 # Install system dependencies required for OCR and image manipulation
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
+    tesseract-ocr-osd \
     poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 

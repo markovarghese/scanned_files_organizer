@@ -61,17 +61,21 @@ class Classifier:
         return self._post_to_ollama(payload)
 
     def _run_vision_model(self, file_path: str, system_prompt: str) -> Tuple[str, str, bool]:
-        if file_path.lower().endswith('.pdf'):
-            from pdf2image import convert_from_path
-            images = convert_from_path(file_path, first_page=1, last_page=1)
-            if not images:
-                return MISC_FOLDER_NAME, "unrecognized_file", False
-            img_byte_arr = io.BytesIO()
-            images[0].save(img_byte_arr, format='JPEG')
-            encoded_string = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
-        else:
-            with open(file_path, "rb") as image_file:
-                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        try:
+            if file_path.lower().endswith('.pdf'):
+                from pdf2image import convert_from_path
+                images = convert_from_path(file_path, first_page=1, last_page=1)
+                if not images:
+                    return MISC_FOLDER_NAME, "unrecognized_file", False
+                img_byte_arr = io.BytesIO()
+                images[0].save(img_byte_arr, format='JPEG')
+                encoded_string = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+            else:
+                with open(file_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        except Exception as e:
+            print(f"[Classifier] Vision file loading error: {e}")
+            return MISC_FOLDER_NAME, "unrecognized_file", False
             
         payload = {
             "model": OLLAMA_VISION_MODEL,
