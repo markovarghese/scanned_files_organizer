@@ -26,57 +26,60 @@ class ScanHandler(FileSystemEventHandler):
             self.process_file(event.src_path)
 
     def process_file(self, file_path):
-        # Ignore files not in root folder explicitly to avoid infinite loops when moving
-        if os.path.dirname(file_path) != os.path.abspath(SCAN_DIRECTORY):
-            return
-            
-        if not str(file_path).lower().endswith(VALID_EXTENSIONS):
-            return
-
-        # Buffer Logic: make sure file is done writing (e.g. from OneDrive)
-        if not self._wait_for_file_ready(file_path):
-            print(f"[Watcher] File {file_path} might be busy or deleted, skipping.")
-            return
-
-        print(f"\n[Watcher] Processing new file: {file_path}")
-        
-        # 1. Gather dynamic categories
-        categories = self._get_dynamic_categories()
-        
-        # 2. Extract Text
-        text = self.extractor.extract_text(file_path)
-        
-        # 3. Classify and Rename
-        category, new_filename, keep_original = self.classifier.determine_classification(file_path, text, categories)
-        
-        # Python heuristics: Enforce keeping original name if it looks human-generated
-        orig_basename = os.path.splitext(os.path.basename(file_path))[0]
-        lower_name = orig_basename.lower().strip()
-        is_generic = lower_name.startswith(("scan", "img", "image", "doc", "untitled", "unrecognized_file", "unnamed_file"))
-        
-        # If it has spaces and doesn't start with a generic scanner term, it's a human name!
-        if " " in orig_basename and not is_generic:
-            keep_original = True
-        
-        # Get the creation time of the file in UTC
         try:
-            create_time = os.path.getctime(file_path)
-            dt = datetime.datetime.fromtimestamp(create_time, tz=datetime.timezone.utc)
-        except Exception:
-            dt = datetime.datetime.now(datetime.timezone.utc)
-        timestamp_str = dt.strftime("%Y%m%d%H%M%S")
-        
-        # Ensure we strip out any accidentally generated extensions from the LLM
-        orig_ext = os.path.splitext(file_path)[1]
-        
-        if keep_original:
-            final_filename = os.path.basename(file_path)
-        else:
-            base_filename = os.path.splitext(new_filename)[0].strip()
-            final_filename = f"{base_filename} {timestamp_str}{orig_ext}"
+            # Ignore files not in root folder explicitly to avoid infinite loops when moving
+            if os.path.dirname(file_path) != os.path.abspath(SCAN_DIRECTORY):
+                return
+                
+            if not str(file_path).lower().endswith(VALID_EXTENSIONS):
+                return
+
+            # Buffer Logic: make sure file is done writing (e.g. from OneDrive)
+            if not self._wait_for_file_ready(file_path):
+                print(f"[Watcher] File {file_path} might be busy or deleted, skipping.")
+                return
+
+            print(f"\n[Watcher] Processing new file: {file_path}")
             
-        # 4. Move file
-        self._move_file(file_path, category, final_filename)
+            # 1. Gather dynamic categories
+            categories = self._get_dynamic_categories()
+            
+            # 2. Extract Text
+            text = self.extractor.extract_text(file_path)
+            
+            # 3. Classify and Rename
+            category, new_filename, keep_original = self.classifier.determine_classification(file_path, text, categories)
+            
+            # Python heuristics: Enforce keeping original name if it looks human-generated
+            orig_basename = os.path.splitext(os.path.basename(file_path))[0]
+            lower_name = orig_basename.lower().strip()
+            is_generic = lower_name.startswith(("scan", "img", "image", "doc", "untitled", "unrecognized_file", "unnamed_file"))
+            
+            # If it has spaces and doesn't start with a generic scanner term, it's a human name!
+            if " " in orig_basename and not is_generic:
+                keep_original = True
+            
+            # Get the creation time of the file in UTC
+            try:
+                create_time = os.path.getctime(file_path)
+                dt = datetime.datetime.fromtimestamp(create_time, tz=datetime.timezone.utc)
+            except Exception:
+                dt = datetime.datetime.now(datetime.timezone.utc)
+            timestamp_str = dt.strftime("%Y%m%d%H%M%S")
+            
+            # Ensure we strip out any accidentally generated extensions from the LLM
+            orig_ext = os.path.splitext(file_path)[1]
+            
+            if keep_original:
+                final_filename = os.path.basename(file_path)
+            else:
+                base_filename = os.path.splitext(new_filename)[0].strip()
+                final_filename = f"{base_filename} {timestamp_str}{orig_ext}"
+                
+            # 4. Move file
+            self._move_file(file_path, category, final_filename)
+        except Exception as e:
+            print(f"[Watcher] Critical Error processing {file_path}: {e}")
 
     def _wait_for_file_ready(self, file_path, wait_time=FILE_READY_WAIT_SECONDS):
         """

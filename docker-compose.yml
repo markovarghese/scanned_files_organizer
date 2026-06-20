@@ -12,7 +12,7 @@ services:
       - PYTHONUNBUFFERED=1
       - APP_OLLAMA_HOST=${APP_OLLAMA_HOST:-http://host.docker.internal:11434}
       - OLLAMA_TEXT_MODEL=${OLLAMA_TEXT_MODEL:-ministral-3:14b}
-      - OLLAMA_VISION_MODEL=${OLLAMA_VISION_MODEL:-llama3.2-vision}
+      - OLLAMA_VISION_MODEL=${OLLAMA_VISION_MODEL:-ministral-3:14b}
       - SCAN_DIRECTORY=/app/scans
       - FILE_READY_WAIT_SECONDS=${FILE_READY_WAIT_SECONDS:-5}
     volumes:
