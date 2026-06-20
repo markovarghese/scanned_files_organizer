@@ -5,18 +5,18 @@ This repository contains a Python-based Docker application that continuously wat
 It handles both standard text documents (PDF/JPEG) and image-heavy files (e.g., family photos).
 
 ## Architecture overview
-- **Text Documents:** The program runs Optical Character Recognition (OCR) locally via Tesseract on the first two pages to extract text context, then sends that text to `ministral-3:14b` natively in Ollama.
-- **Photos/Images:** If you drop in an image file and no text is found, it will automatically connect to a Vision LLM (`llama3.2-vision`) to describe the photo and appropriately organize it. 
+- **Smart Extraction:** The program runs Optical Character Recognition (OCR) locally via Tesseract on the first two pages. It automatically detects the orientation of scans (e.g., upside down or sideways) and rotates them in memory before extracting the text.
+- **Text Documents:** The extracted text is sent to the `ministral-3:14b` model natively in Ollama for categorization and naming.
+- **Photos, Checks & Handwriting:** If a document (PDF, JPEG, etc.) yields very little text (fewer than 5 words), it automatically uses the native vision capabilities of `ministral-3:14b` to "look" at the document, describe it, and appropriately organize it.
 
 ## Requirements
 - Docker
 - Local Ollama running with the `ministral-3:14b` model installed.
-- (Optional but Highly Recommended for Photos): The `llama3.2-vision` model.
 
-### 1. Install fallback Vision model in Ollama
-Since `ministral-3` is a robust text model but lacks native vision, this application uses a secondary lightweight vision model for pure images. Run this command on your host:
+### 1. Install the Model in Ollama
+This application relies on `ministral-3:14b` for both its text processing and native vision capabilities. Run this command on your host:
 ```bash
-ollama pull llama3.2-vision
+ollama pull ministral-3:14b
 ```
 
 ### 2. Configure Environment
