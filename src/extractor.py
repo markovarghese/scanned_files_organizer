@@ -2,10 +2,22 @@ import os
 import pytesseract
 from pdf2image import convert_from_path
 from PIL import Image
+from pytesseract import Output
 
 class Extractor:
     def __init__(self):
         pass
+
+    def _auto_rotate_image(self, img):
+        try:
+            osd = pytesseract.image_to_osd(img, output_type=Output.DICT)
+            angle = osd.get('rotate', 0)
+            if angle != 0:
+                return img.rotate(-angle, expand=True)
+        except Exception:
+            # OSD might fail if there's no text (e.g. pure photos), safely ignore
+            pass
+        return img
 
     def extract_from_pdf(self, file_path: str) -> str:
         """
@@ -16,6 +28,7 @@ class Extractor:
             images = convert_from_path(file_path, first_page=1, last_page=2)
             extracted_text = ""
             for img in images:
+                img = self._auto_rotate_image(img)
                 text = pytesseract.image_to_string(img)
                 extracted_text += text + "\n"
             return extracted_text.strip()
@@ -30,6 +43,7 @@ class Extractor:
         """
         try:
             img = Image.open(file_path)
+            img = self._auto_rotate_image(img)
             # Basic OCR
             extracted_text = pytesseract.image_to_string(img)
             return extracted_text.strip()
