@@ -1,6 +1,7 @@
 import json
 import base64
 import requests
+import io
 from typing import List, Dict, Tuple
 from src.config import OLLAMA_HOST, OLLAMA_TEXT_MODEL, OLLAMA_VISION_MODEL, MISC_FOLDER_NAME, OLLAMA_TIMEOUT_SECONDS
 
@@ -16,8 +17,8 @@ class Classifier:
         is_photo = False
         words = extracted_text.split()
         
-        # If the file is an image and has very few words, assume it's a photo
-        if file_path.lower().endswith(('.jpg', '.jpeg', '.png')) and len(words) < 5:
+        # If OCR yields very few words, assume it's a photo, check, or handwriting
+        if len(words) < 5:
             is_photo = True
             
         system_prompt = self._build_prompt(file_path, categories)
@@ -60,8 +61,17 @@ class Classifier:
         return self._post_to_ollama(payload)
 
     def _run_vision_model(self, file_path: str, system_prompt: str) -> Tuple[str, str, bool]:
-        with open(file_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        if file_path.lower().endswith('.pdf'):
+            from pdf2image import convert_from_path
+            images = convert_from_path(file_path, first_page=1, last_page=1)
+            if not images:
+                return MISC_FOLDER_NAME, "unrecognized_file", False
+            img_byte_arr = io.BytesIO()
+            images[0].save(img_byte_arr, format='JPEG')
+            encoded_string = base64.b64encode(img_byte_arr.getvalue()).decode('utf-8')
+        else:
+            with open(file_path, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
             
         payload = {
             "model": OLLAMA_VISION_MODEL,
